@@ -7,9 +7,54 @@ import { Link } from '@inertiajs/react';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [courseCode, setCourseCode] = useState('');
+    const [isTeacher, setIsTeacher] = useState(user.role === 'teacher' || user.role === 'admin');
+
+    const handleModalToggle = () => {
+        setShowModal(!showModal);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('courseName', courseCode); // Saglabā kursa nosaukumu
+        
+        // Iegūstiet CSRF token
+        const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : '';
+        
+        try {
+            const response = await fetch(route(isTeacher ? 'courses.store' : 'courses.join'), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    // 'Content-Type': 'application/x-www-form-urlencoded', // Šo rindu var izdzēst
+                },
+                body: formData,
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Success:', data); // Apstrādājiet veiksmi (pāradresējiet vai rādiet ziņu)
+                setCourseCode('');
+            } else {
+                const errorData = await response.json();
+                console.error('Error creating/joining course:', errorData); // Apstrādājiet kļūdu
+            }
+        } catch (error) {
+            console.error('Error:', error); // Apstrādājiet fetch kļūdu
+        }
+    
+        setShowModal(false); // Aizveriet modal pēc iesniegšanas
+    };
+    
+    
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-gray-100 relative">
             <nav className="bg-white border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
@@ -37,7 +82,6 @@ export default function Authenticated({ user, header, children }) {
                                                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
                                             >
                                                 {user.name}
-
                                                 <svg
                                                     className="ms-2 -me-0.5 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -120,6 +164,64 @@ export default function Authenticated({ user, header, children }) {
             )}
 
             <main>{children}</main>
+
+            {/* Floating Plus Icon */}
+            <button
+                onClick={handleModalToggle}
+                className="fixed bottom-6 right-6 bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-500 transition duration-300"
+                aria-label="Add Course"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v6h6a1 1 0 110 2h-6v6a1 1 0 11-2 0v-6H3a1 1 0 110-2h6V3a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+            </button>
+
+            {/* Modal for Adding/Joining Courses */}
+            {showModal && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <h3 className="text-lg font-semibold mb-4">
+                            {isTeacher ? 'Create a Course' : 'Join a Course'}
+                        </h3>
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {isTeacher ? 'Course Name' : 'Course Code'}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={courseCode}
+                                    onChange={(e) => setCourseCode(e.target.value)}
+                                    required
+                                    className="border border-gray-300 rounded-lg w-full p-2"
+                                    placeholder={isTeacher ? 'Enter course name' : 'Enter course code'}
+                                />
+                            </div>
+
+                            <div className="text-gray-500 text-sm mb-4">
+                                {isTeacher ? (
+                                    <p>You can create a new course and provide the code to your students.</p>
+                                ) : (
+                                    <p>
+                                        You are currently signed in as <strong>{user.name}</strong> ({user.email}).
+                                        <br />
+                                        Ask your teacher for the course code and enter it above to join.
+                                    </p>
+                                )}
+                            </div>
+
+                            <button type="submit" className="w-full bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-500 transition duration-200">
+                                {isTeacher ? 'Create Course' : 'Join Course'}
+                            </button>
+                        </form>
+
+                        <button onClick={handleModalToggle} className="mt-4 text-gray-500 hover:text-gray-700">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
