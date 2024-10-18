@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('courses', function (Blueprint $table) {
+        Schema::create('assignment', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Kursa nosaukums
+            $table->foreignId('work_id')->constrained('works');
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade'); // Atsauce uz skolotāja ID
+            $table->string('name');
             $table->timestamps();
         });
-            
     }
 
     /**
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('courses');
+        Schema::dropIfExists('assignment');
     }
 };
