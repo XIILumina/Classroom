@@ -7,12 +7,12 @@ import { Link } from '@inertiajs/react';
 import isAdminOrTeacher from '@/Pages/Dashboard';
 
 export default function Authenticated({ user, header, children }) {
-
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-
     const [selectedImage, setSelectedImage] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [courseCode, setCourseCode] = useState('');
+    const isTeacher = user.role === 'teacher' || user.role === 'admin';
 
-    // Получаем текущее изображение профиля при монтировании компонента
     useEffect(() => {
         fetch("/api/image/get")
             .then((response) => response.json())
@@ -20,10 +20,6 @@ export default function Authenticated({ user, header, children }) {
                 setSelectedImage("/storage/" + data.photo[0]);
             });
     }, []);
-
-    const [showModal, setShowModal] = useState(false);
-    const [courseCode, setCourseCode] = useState('');
-    const [isTeacher, setIsTeacher] = useState(user.role === 'teacher' || user.role === 'admin');
 
     const handleModalToggle = () => {
         setShowModal(!showModal);
@@ -33,11 +29,9 @@ export default function Authenticated({ user, header, children }) {
         e.preventDefault();
         
         const formData = new FormData();
-        formData.append('courseName', courseCode); // Saglabā kursa nosaukumu
+        formData.append('courseName', courseCode);
         
-        // Iegūstiet CSRF token
-        const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
-        const csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : '';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
         try {
             const response = await fetch(route(isTeacher ? 'courses.store' : 'courses.join'), {
@@ -45,27 +39,21 @@ export default function Authenticated({ user, header, children }) {
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json',
-                    // 'Content-Type': 'application/x-www-form-urlencoded', // Šo rindu var izdzēst
                 },
                 body: formData,
             });
     
             if (response.ok) {
-                const data = await response.json();
-                console.log('Success:', data); // Apstrādājiet veiksmi (pāradresējiet vai rādiet ziņu)
                 setCourseCode('');
             } else {
-                const errorData = await response.json();
-                console.error('Error creating/joining course:', errorData); // Apstrādājiet kļūdu
+                console.error('Error creating/joining course:', await response.json());
             }
         } catch (error) {
-            console.error('Error:', error); // Apstrādājiet fetch kļūdu
+            console.error('Error:', error);
         }
     
-        setShowModal(false); // Aizveriet modal pēc iesniegšanas
+        setShowModal(false);
     };
-    
-
 
     return (
         <div className="min-h-screen bg-gray-100 relative">
@@ -80,26 +68,16 @@ export default function Authenticated({ user, header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
-                                </NavLink>
-                                <NavLink href={route('classrooms')} active={route().current('classrooms')}>
-                                    Classes
-                                </NavLink>
-                                <NavLink href={route('works')} active={route().current('works')}>
-                                    Works
-                                </NavLink>
+                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</NavLink>
+                                <NavLink href={route('classrooms')} active={route().current('classrooms')}>Classes</NavLink>
+                                <NavLink href={route('works')} active={route().current('works')}>Works</NavLink>
                                 {isAdminOrTeacher && (
-                            
-                                <NavLink href={route('adminPanel')} active={route().current('adminPanel')}>
-                                    Admin Panel
-                                </NavLink>,
-                                <NavLink href={route('logs')} active={route().current('logs')}>
-                                    Logs
-                                </NavLink>
-                            )}
+                                    <>
+                                        <NavLink href={route('adminPanel')} active={route().current('adminPanel')}>Admin Panel</NavLink>
+                                        <NavLink href={route('logs')} active={route().current('logs')}>Logs</NavLink>
+                                    </>
+                                )}
                             </div>
-                            
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
@@ -108,7 +86,6 @@ export default function Authenticated({ user, header, children }) {
                                 alt="Profile"
                                 className="h-10 w-10 rounded-full object-cover border border-gray-300"
                             />
-
                             <div className="ms-3 relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
@@ -133,12 +110,9 @@ export default function Authenticated({ user, header, children }) {
                                             </button>
                                         </span>
                                     </Dropdown.Trigger>
-
                                     <Dropdown.Content>
                                         <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
-                                        </Dropdown.Link>
+                                        <Dropdown.Link href={route('logout')} method="post" as="button">Log Out</Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
                             </div>
@@ -146,7 +120,7 @@ export default function Authenticated({ user, header, children }) {
 
                         <div className="-me-2 flex items-center sm:hidden">
                             <button
-                                onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
+                                onClick={() => setShowingNavigationDropdown((prev) => !prev)}
                                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
                             >
                                 <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -172,9 +146,7 @@ export default function Authenticated({ user, header, children }) {
 
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
-                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
@@ -185,9 +157,7 @@ export default function Authenticated({ user, header, children }) {
 
                         <div className="mt-3 space-y-1">
                             <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
-                            </ResponsiveNavLink>
+                            <ResponsiveNavLink method="post" href={route('logout')} as="button">Log Out</ResponsiveNavLink>
                         </div>
                     </div>
                 </div>
@@ -202,7 +172,6 @@ export default function Authenticated({ user, header, children }) {
             <main className="p-6">
                 {children}
             </main>
-            <main>{children}</main>
 
             {/* Floating Plus Icon */}
             <button
@@ -219,10 +188,7 @@ export default function Authenticated({ user, header, children }) {
             {showModal && (
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-                        <h3 className="text-lg font-semibold mb-4">
-                            {isTeacher ? 'Create a Course' : 'Join a Course'}
-                        </h3>
-
+                        <h3 className="text-lg font-semibold mb-4">{isTeacher ? 'Create a Course' : 'Join a Course'}</h3>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -255,9 +221,7 @@ export default function Authenticated({ user, header, children }) {
                             </button>
                         </form>
 
-                        <button onClick={handleModalToggle} className="mt-4 text-gray-500 hover:text-gray-700">
-                            Cancel
-                        </button>
+                        <button onClick={handleModalToggle} className="mt-4 text-gray-500 hover:text-gray-700">Cancel</button>
                     </div>
                 </div>
             )}
