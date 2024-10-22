@@ -1,11 +1,8 @@
 <?php
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ProfileController;
-<<<<<<< HEAD
 use App\Http\Controllers\StorageController;
-=======
 use App\Http\Controllers\CourseController;
->>>>>>> 9d0b646858d90dc53453305f9f3cbf5afbd20773
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -57,6 +54,18 @@ Route::get('/storage/{any}', function ($any) {
 
 
 
+Route::get('/classrooms', function () {
+    return Inertia::render('Classrooms/ClassPage'); 
+})->name('classrooms');
+Route::get('/works', function () {
+    return Inertia::render('works');
+})->name('works');;
+Route::get('/logs', function () {
+    return Inertia::render('logs');
+})->name('logs');;
+Route::get('/adminPanel', function () {
+    return Inertia::render('adminPanel');
+})->name('adminPanel');;
 
 
 require __DIR__.'/auth.php';
@@ -80,9 +89,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/classes', function () {
-    return Inertia::render('classes');
-});
 
 Route::get('/dashboard', [ClassController::class, 'index'])->middleware(['auth'])->name('dashboard');
 Route::post('/class/create', [ClassController::class, 'store'])->middleware(['auth']);
@@ -91,9 +97,10 @@ Route::get('/class/{id}', [ClassController::class, 'show'])->middleware(['auth']
 require __DIR__.'/auth.php';
 use App\Http\Controllers\UserController;
 
+// Route::post('/dashboard', [ClassController::class, 'store'])->name('classrooms.store');
 
 
-// // Admin Routes
+// Admin Routes
 // Route::middleware(['auth', 'role:admin'])->group(function () {
 //     Route::get('/admin', [UserController::class, 'index'])->name('admin.dashboard');
 //     Route::get('/admin/user/{id}/edit', [UserController::class, 'editUser'])->name('admin.edit.user');

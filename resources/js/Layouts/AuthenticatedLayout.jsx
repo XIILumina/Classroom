@@ -4,10 +4,12 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
+import isAdminOrTeacher from '@/Pages/Dashboard';
 
 export default function Authenticated({ user, header, children }) {
+
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-<<<<<<< HEAD
+
     const [selectedImage, setSelectedImage] = useState(null);
 
     // Получаем текущее изображение профиля при монтировании компонента
@@ -18,7 +20,7 @@ export default function Authenticated({ user, header, children }) {
                 setSelectedImage("/storage/" + data.photo[0]);
             });
     }, []);
-=======
+
     const [showModal, setShowModal] = useState(false);
     const [courseCode, setCourseCode] = useState('');
     const [isTeacher, setIsTeacher] = useState(user.role === 'teacher' || user.role === 'admin');
@@ -63,8 +65,7 @@ export default function Authenticated({ user, header, children }) {
         setShowModal(false); // Aizveriet modal pēc iesniegšanas
     };
     
-    
->>>>>>> 9d0b646858d90dc53453305f9f3cbf5afbd20773
+
 
     return (
         <div className="min-h-screen bg-gray-100 relative">
@@ -82,7 +83,23 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
+                                <NavLink href={route('classrooms')} active={route().current('classrooms')}>
+                                    Classes
+                                </NavLink>
+                                <NavLink href={route('works')} active={route().current('works')}>
+                                    Works
+                                </NavLink>
+                                {isAdminOrTeacher && (
+                            
+                                <NavLink href={route('adminPanel')} active={route().current('adminPanel')}>
+                                    Admin Panel
+                                </NavLink>,
+                                <NavLink href={route('logs')} active={route().current('logs')}>
+                                    Logs
+                                </NavLink>
+                            )}
                             </div>
+                            
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
@@ -182,11 +199,9 @@ export default function Authenticated({ user, header, children }) {
                 </header>
             )}
 
-<<<<<<< HEAD
             <main className="p-6">
                 {children}
             </main>
-=======
             <main>{children}</main>
 
             {/* Floating Plus Icon */}
@@ -246,7 +261,6 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 </div>
             )}
->>>>>>> 9d0b646858d90dc53453305f9f3cbf5afbd20773
         </div>
     );
 }

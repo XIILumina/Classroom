@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // \App\Models\User::factory(10)->create();
+<<<<<<< HEAD
 
 <<<<<<< HEAD
         User::factory()->create([
@@ -26,6 +27,9 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 =======
+=======
+        
+>>>>>>> 748472978bba2c5a02d891256e1881f59c7cea44
         \App\Models\User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
