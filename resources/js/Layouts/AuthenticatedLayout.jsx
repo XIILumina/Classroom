@@ -4,8 +4,10 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
+import isAdminOrTeacher from '@/Pages/Dashboard';
 
 export default function Authenticated({ user, header, children }) {
+
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [courseCode, setCourseCode] = useState('');
@@ -69,7 +71,23 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
+                                <NavLink href={route('classrooms')} active={route().current('classrooms')}>
+                                    Classes
+                                </NavLink>
+                                <NavLink href={route('works')} active={route().current('works')}>
+                                    Works
+                                </NavLink>
+                                {isAdminOrTeacher && (
+                            
+                                <NavLink href={route('adminPanel')} active={route().current('adminPanel')}>
+                                    Admin Panel
+                                </NavLink>,
+                                <NavLink href={route('logs')} active={route().current('logs')}>
+                                    Logs
+                                </NavLink>
+                            )}
                             </div>
+                            
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">

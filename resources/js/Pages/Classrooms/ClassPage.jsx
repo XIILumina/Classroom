@@ -1,4 +1,6 @@
-import React from 'react';
+
+import React, { useState } from 'react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function ClassPage({ classDetails, quests }) {
     const [newQuest, setNewQuest] = useState('');
@@ -10,6 +12,7 @@ export default function ClassPage({ classDetails, quests }) {
     };
 
     return (
+        <AuthenticatedLayout>
         <div className="p-6 bg-white shadow-md rounded-lg">
             <h1 className="text-2xl font-bold mb-4">{classDetails.name}</h1>
             <h2 className="text-lg mb-4">Quests</h2>
@@ -36,5 +39,6 @@ export default function ClassPage({ classDetails, quests }) {
                 </button>
             </form>
         </div>
+    </AuthenticatedLayout>
     );
 }
