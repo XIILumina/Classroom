@@ -46,56 +46,56 @@ export default function UpdateProfilePhoto({ auth, className = "" }) {
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Update Profile Photo
-                </h2>
-                <p className="mt-1 text-sm text-gray-600">
-                    Upload a new photo for your profile.
-                </p>
-            </header>
+        <section className={`${className} flex flex-col md:flex-row items-start`}>
+            <div className="md:w-1/2">
+                <header>
+                    <h2 className="text-lg font-medium text-gray-900">
+                        Update Profile Photo
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-600">
+                        Upload a new photo for your profile.
+                    </p>
+                </header>
 
-            <form
-                onSubmit={handleSubmit}
-                className="mt-6 space-y-6"
-                encType="multipart/form-data"
-            >
-                <div>
-                    <InputLabel htmlFor="avatar" value="Profile Photo" />
-                    <input
-                        id="avatar"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="mt-1 block w-full"
-                    />
-                    <InputError className="mt-2" message={errors.avatar} />
-                </div>
+                <form
+                    onSubmit={handleSubmit}
+                    className="mt-6 space-y-6"
+                    encType="multipart/form-data"
+                >
+                    <div>
+                        <InputLabel htmlFor="avatar" value="Profile Photo" />
+                        <input
+                            id="avatar"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="mt-1 block w-full"
+                        />
+                        <InputError className="mt-2" message={errors.avatar} />
+                    </div>
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
-                    {photoUpdated && (
-                        <p className="text-sm text-green-600">
-                            Profile photo updated!
-                        </p>
-                    )}
-                </div>
-            </form>
+                    <div className="flex items-center gap-4">
+                        <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                        {photoUpdated && (
+                            <p className="text-sm text-green-600">
+                                Profile photo updated!
+                            </p>
+                        )}
+                    </div>
+                </form>
+            </div>
 
-            {selectedImage ? (
-                <div className="mt-6">
-                    <h3 className="text-lg font-medium text-gray-900">
-                        Preview:
-                    </h3>
-                    <img
-                        src={selectedImage}
-                        alt={"/storage/" + selectedImage}
-                        className="mt-2 w-32 h-32 object-cover rounded-full border"
-                    />
-                </div>
-            ):
-            null}
+            <div className="md:w-1/2 flex justify-center mt-6 md:mt-0">
+                {selectedImage && (
+                    <div className="text-center">
+                        <img
+                            src={selectedImage}
+                            alt="Profile Preview"
+                            className="w-32 h-32 object-cover rounded-full border" // Updated size to be square
+                        />
+                    </div>
+                )}
+            </div>
         </section>
     );
 }
