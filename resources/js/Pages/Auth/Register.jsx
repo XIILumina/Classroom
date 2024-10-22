@@ -23,7 +23,12 @@ export default function Register() {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('register'));
+        post(route('register'), {
+            onSuccess: () => {
+                // Перенаправление на страницу редактирования профиля
+                window.location.href = route('profile.edit');
+            },
+        });
     };
 
     return (
