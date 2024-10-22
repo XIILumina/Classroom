@@ -41,6 +41,34 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's profile photo.
+     */
+    public function updateProfilePhoto(Request $request): RedirectResponse
+    {
+        // Валидируем файл
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Получаем файл
+        $file = $request->file('avatar');
+
+        // Создаем уникальное имя файла
+        $filename = time() . '.' . $file->getClientOriginalExtension();
+
+        // Сохраняем файл в папку public/avatars
+        $file->move(public_path('avatars'), $filename);
+
+        // Обновляем профиль пользователя
+        $user = auth()->user();
+        $user->update([
+            'avatar' => $filename,
+        ]);
+
+        return back()->with('success', 'Profile photo updated successfully.');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

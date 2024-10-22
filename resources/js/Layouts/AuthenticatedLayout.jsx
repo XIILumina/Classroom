@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
@@ -7,6 +7,16 @@ import { Link } from '@inertiajs/react';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    // Получаем текущее изображение профиля при монтировании компонента
+    useEffect(() => {
+        fetch("/api/image/get")
+            .then((response) => response.json())
+            .then((data) => {
+                setSelectedImage("/storage/" + data.photo[0]);
+            });
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -28,6 +38,12 @@ export default function Authenticated({ user, header, children }) {
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
+                            <img
+                                src={selectedImage}
+                                alt="Profile"
+                                className="h-10 w-10 rounded-full object-cover border border-gray-300"
+                            />
+
                             <div className="ms-3 relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
@@ -37,7 +53,6 @@ export default function Authenticated({ user, header, children }) {
                                                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
                                             >
                                                 {user.name}
-
                                                 <svg
                                                     className="ms-2 -me-0.5 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +134,9 @@ export default function Authenticated({ user, header, children }) {
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className="p-6">
+                {children}
+            </main>
         </div>
     );
 }
