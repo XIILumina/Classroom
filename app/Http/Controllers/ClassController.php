@@ -18,22 +18,25 @@ class ClassController extends Controller
     }
 
     // Create a new class (only for admins and teachers)
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'teacher') {
-            abort(403, 'Unauthorized action.');
-        }
-
-        Classroom::create([
-            'name' => $request->name,
-        ]);
-
-        return redirect()->back()->with('success', 'Class created successfully');
+    // In your ClassController.php
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'work_id' => 'required|exists:works,id',
+        'teacher_id' => 'required|exists:users,id',
+    ]);
+    if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'teacher') {
+        abort(403, 'Unauthorized action.');
     }
+    $classroom = new Classroom();
+    $classroom->name = $request->name;
+    $classroom->work_id = $request->work_id;
+    $classroom->teacher_id = $request->teacher_id;
+    $classroom->save();
+
+    return redirect()->back()->with('success', 'Classroom created successfully');
+}
     public function show($id)
 {
     $class = Classroom::findOrFail($id);
