@@ -1,5 +1,4 @@
-<?php
-
+<?php 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,11 +10,13 @@ class Classroom extends Model
 
     protected $fillable = [
         'name',
-        'users_id'
+        'teacher_id', // Make sure this is correct
+        'work_id',
     ];
-    // app/Models/Classroom.php
-public function works()
-{
-    return $this->hasMany(Work::class);
-}
+
+    // Relationship with works
+    public function works()
+    {
+        return $this->hasMany(Work::class);
+    }
 }

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('classrooms', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('work_id')->constrained('works');
-            $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('work_id')->nullable()->constrained('works'); // Optional work_id
+            $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade'); // Automatically assign the teacher
             $table->string('name');
             $table->timestamps();
         });

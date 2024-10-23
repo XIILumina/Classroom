@@ -4,14 +4,13 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
-import isAdminOrTeacher from '@/Pages/Dashboard';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [courseCode, setCourseCode] = useState('');
-    const isTeacher = user.role === 'teacher' || user.role === 'admin';
+    const isTeacher = ['teacher', 'admin'].includes(user.role); // Check if the user is teacher or admin
 
     useEffect(() => {
         fetch("/api/image/get")
@@ -27,12 +26,12 @@ export default function Authenticated({ user, header, children }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const formData = new FormData();
         formData.append('courseName', courseCode);
-        
+
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
+
         try {
             const response = await fetch(route(isTeacher ? 'courses.store' : 'courses.join'), {
                 method: 'POST',
@@ -42,7 +41,7 @@ export default function Authenticated({ user, header, children }) {
                 },
                 body: formData,
             });
-    
+
             if (response.ok) {
                 setCourseCode('');
             } else {
@@ -51,7 +50,7 @@ export default function Authenticated({ user, header, children }) {
         } catch (error) {
             console.error('Error:', error);
         }
-    
+
         setShowModal(false);
     };
 
@@ -69,9 +68,8 @@ export default function Authenticated({ user, header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</NavLink>
-                                <NavLink href={route('classrooms')} active={route().current('classrooms')}>Classes</NavLink>
-                                <NavLink href={route('works')} active={route().current('works')}>Works</NavLink>
-                                {isAdminOrTeacher && (
+                                <NavLink href={route('works')} active={route().current('works')}> Work </NavLink>
+                                {isTeacher && (
                                     <>
                                         <NavLink href={route('adminPanel')} active={route().current('adminPanel')}>Admin Panel</NavLink>
                                         <NavLink href={route('logs')} active={route().current('logs')}>Logs</NavLink>
@@ -199,29 +197,22 @@ export default function Authenticated({ user, header, children }) {
                                     value={courseCode}
                                     onChange={(e) => setCourseCode(e.target.value)}
                                     required
-                                    className="border border-gray-300 rounded-lg w-full p-2"
-                                    placeholder={isTeacher ? 'Enter course name' : 'Enter course code'}
+                                    className="border border-gray-300 rounded-md p-2 w-full"
                                 />
                             </div>
-
-                            <div className="text-gray-500 text-sm mb-4">
-                                {isTeacher ? (
-                                    <p>You can create a new course and provide the code to your students.</p>
-                                ) : (
-                                    <p>
-                                        You are currently signed in as <strong>{user.name}</strong> ({user.email}).
-                                        <br />
-                                        Ask your teacher for the course code and enter it above to join.
-                                    </p>
-                                )}
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={handleModalToggle}
+                                    className="text-gray-500 hover:text-gray-700 mr-4"
+                                >
+                                    Cancel
+                                </button>
+                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-300">
+                                    {isTeacher ? 'Create' : 'Join'}
+                                </button>
                             </div>
-
-                            <button type="submit" className="w-full bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-500 transition duration-200">
-                                {isTeacher ? 'Create Course' : 'Join Course'}
-                            </button>
                         </form>
-
-                        <button onClick={handleModalToggle} className="mt-4 text-gray-500 hover:text-gray-700">Cancel</button>
                     </div>
                 </div>
             )}
