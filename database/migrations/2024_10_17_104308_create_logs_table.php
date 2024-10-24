@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('action'); // e.g., 'User updated name', 'Teacher rated work'
-            $table->timestamps();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Links to the users table
+            $table->string('action'); // Stores the action performed by the user
+            $table->timestamps(); // Adds created_at and updated_at fields
         });
     }
 

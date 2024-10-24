@@ -7,7 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Work extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'name',
+        'teacher_id', // Make sure this is correct
+        'work_id',
+        'title',
+        'description',
+        'status',
+    ];
     // app/Models/Work.php
     public function assignments()
     {

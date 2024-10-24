@@ -1,15 +1,19 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, useForm } from '@inertiajs/react';
 
 export default function Dashboard({ auth, classes }) {
-    const [newClass, setNewClass] = useState('');
     const isAdminOrTeacher = auth.user.role === 'admin' || auth.user.role === 'teacher';
 
-    const handleCreateClass = (e) => {
+    // Initialize form state using Inertia's `useForm`
+    const { data, setData, post, errors } = useForm({
+        name: '',  // Class name
+        teacher_id: auth.user.id // Automatically set teacher_id from the logged-in user
+    });
+
+    // Handle form submission
+    const handleSubmit = (e) => {
         e.preventDefault();
-        // Submit class creation to backend, typically using axios or Inertia's post method
-        console.log('Class Created:', newClass);
+        post('/class/create'); // Make sure this matches the route in your web.php
     };
 
     return (
@@ -35,25 +39,24 @@ export default function Dashboard({ auth, classes }) {
                             </ul>
 
                             {isAdminOrTeacher && (
-                                <div className="mt-8">
-                                    <h3 className="text-lg font-semibold mb-4">Create a New Class</h3>
-                                    <form onSubmit={handleCreateClass}>
+                                <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mt-6">
+                                    <div className="mb-4">
+                                        <label className="block text-gray-700">Class Name:</label>
                                         <input
                                             type="text"
-                                            value={newClass}
-                                            onChange={(e) => setNewClass(e.target.value)}
-                                            placeholder="Class Name"
-                                            className="border p-2 rounded-md"
-                                            required
+                                            className="border border-gray-300 rounded-lg p-2 w-full"
+                                            value={data.name}
+                                            onChange={(e) => setData('name', e.target.value)}
                                         />
-                                        <button
-                                            type="submit"
-                                            className="ml-2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                                        >
-                                            Create Class
-                                        </button>
-                                    </form>
-                                </div>
+                                        {errors.name && <p className="text-red-500">{errors.name}</p>}
+                                    </div>
+                                    
+                                    {/* teacher_id is automatically set, no input needed */}
+
+                                    <button type="submit" className="bg-blue-500 text-white p-2 rounded-lg">
+                                        Create Class
+                                    </button>
+                                </form>
                             )}
                         </div>
                     </div>
