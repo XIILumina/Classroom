@@ -67,7 +67,7 @@ export default function Authenticated({ user, header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</NavLink>
+                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>Home Page</NavLink>
                                 <NavLink href={route('works')} active={route().current('works')}> Works </NavLink>
                                 {isTeacher && (
                                     <>
@@ -167,7 +167,7 @@ export default function Authenticated({ user, header, children }) {
                 </header>
             )}
 
-            <main className="p-6">
+            <main>
                 {children}
             </main>
 
