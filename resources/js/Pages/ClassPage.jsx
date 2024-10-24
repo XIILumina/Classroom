@@ -8,7 +8,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => { // 'auth' contains th
     const [works, setWorks] = useState(Array.isArray(availableWorks) ? availableWorks : []); // Ensure works is an array
 
     const handleCreateWork = () => {
-        Inertia.post('/api/works', {
+        Inertia.post('/classroom/works', {
             classId,
             title,
             description,
@@ -22,7 +22,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => { // 'auth' contains th
     };
 
     const fetchAvailableWorks = () => {
-        Inertia.get(`/api/classes/${classId}/works`, {
+        Inertia.get(`/classroom/${classId}/works`, {
             onSuccess: (response) => {
                 setWorks(Array.isArray(response.props.works) ? response.props.works : []); // Ensure response works is an array
             },
