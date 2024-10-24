@@ -33,6 +33,11 @@ export default function Dashboard({ auth, classes }) {
                                         Home Page
                                     </a>
                                 </li>
+                                <li className="mb-2">
+                                    <a href="/Courses" className="block p-3 text-gray-600 hover:bg-blue-100 rounded transition duration-200">
+                                        Courses
+                                    </a>
+                                </li>
                                 {isAdminOrTeacher && (
                                     <li className="mb-2">
                                         <button 

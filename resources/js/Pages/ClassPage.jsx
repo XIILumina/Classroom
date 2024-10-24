@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Inertia } from '@inertiajs/inertia'; 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-const ClassPage = ({ classId, availableWorks, auth }) => { // 'auth' contains the authenticated user
+const ClassPage = ({ classId, availableWorks, auth }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [works, setWorks] = useState(Array.isArray(availableWorks) ? availableWorks : []); // Ensure works is an array
+    const [works, setWorks] = useState(Array.isArray(availableWorks) ? availableWorks : []);
+    const [isFormVisible, setFormVisible] = useState(false);
 
     const handleCreateWork = () => {
         Inertia.post('/classroom/works', {
@@ -24,7 +25,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => { // 'auth' contains th
     const fetchAvailableWorks = () => {
         Inertia.get(`/classroom/${classId}/works`, {
             onSuccess: (response) => {
-                setWorks(Array.isArray(response.props.works) ? response.props.works : []); // Ensure response works is an array
+                setWorks(Array.isArray(response.props.works) ? response.props.works : []);
             },
         });
     };
@@ -34,50 +35,72 @@ const ClassPage = ({ classId, availableWorks, auth }) => { // 'auth' contains th
     }, [classId]);
 
     return (
-        <AuthenticatedLayout user={auth}> {/* Pass 'auth' as the 'user' */}
-            <div className="max-w-4xl mx-auto p-4">
-                <h1 className="text-2xl font-bold mb-4">{title}</h1>
-                
-                <div className="mb-6">
-                    <h2 className="text-xl font-semibold">Create New Work</h2>
-                    <div className="mt-4">
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Work Title"
-                            className="border border-gray-300 rounded p-2 w-full mb-2"
-                        />
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Work Description"
-                            className="border border-gray-300 rounded p-2 w-full mb-2"
-                        ></textarea>
-                        <button
-                            onClick={handleCreateWork}
-                            className="bg-blue-500 text-white rounded p-2 hover:bg-blue-600"
-                        >
-                            Create Work
-                        </button>
+        <AuthenticatedLayout user={auth}>
+            <div className="flex min-h-screen bg-gray-100">
+                {/* Sidebar */}
+                <aside className="w-64 bg-white shadow-md border-r border-gray-200">
+                    <div className="p-6">
+                        <h2 className="text-2xl font-bold text-blue-600">Menu</h2>
+                        <nav className="mt-4">
+                            <ul>
+                                <li className="mb-2">
+                                    <button 
+                                        onClick={() => setFormVisible(!isFormVisible)} 
+                                        className="block w-full text-left p-3 text-gray-600 hover:bg-blue-100 rounded transition duration-200"
+                                    >
+                                        Create New Work
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
-                </div>
 
-                <div>
-                    <h2 className="text-xl font-semibold">Available Works</h2>
-                    <ul className="mt-4">
+                    {/* Form for creating new work */}
+                    {isFormVisible && (
+                        <div className="p-6 border-t border-gray-200">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">New Work</h3>
+                            <div className="bg-white p-4 rounded-lg shadow-md transition transform hover:scale-105">
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="Work Title"
+                                    className="border border-gray-300 rounded-lg p-3 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Work Description"
+                                    className="border border-gray-300 rounded-lg p-3 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                ></textarea>
+                                <button
+                                    onClick={handleCreateWork}
+                                    className="bg-blue-600 text-white rounded-lg p-3 w-full hover:bg-blue-500 transition duration-300"
+                                >
+                                    Create Work
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </aside>
+
+                {/* Main Content Area */}
+                <main className="flex-1 p-8">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-6">Class Works</h1>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Available Works</h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {works.length === 0 ? (
-                            <li>No works available.</li>
+                            <li className="col-span-1 bg-white border border-gray-300 rounded-lg p-4 text-center">No works available.</li>
                         ) : (
                             works.map((work) => (
-                                <li key={work.id} className="border p-2 rounded mb-2">
-                                    <h3 className="font-bold">{work.title}</h3>
-                                    <p>{work.description}</p>
+                                <li key={work.id} className="bg-white border border-gray-300 rounded-lg shadow p-4 transition transform hover:scale-105">
+                                    <h3 className="font-bold text-xl text-gray-800">{work.title}</h3>
+                                    <p className="text-gray-600 mt-2">{work.description}</p>
                                 </li>
                             ))
                         )}
                     </ul>
-                </div>
+                </main>
             </div>
         </AuthenticatedLayout>
     );
