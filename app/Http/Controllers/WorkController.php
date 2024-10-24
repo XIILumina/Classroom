@@ -23,4 +23,33 @@ class WorkController extends Controller
 
         return response()->json(['work' => $work], 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        // Validate request data
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        // Find the work by ID
+        $work = Work::findOrFail($id);
+        
+        // Update the work details
+        $work->update([
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+
+        return response()->json(['work' => $work]);
+    }
+
+    public function destroy($id)
+    {
+        // Find the work by ID and delete it
+        $work = Work::findOrFail($id);
+        $work->delete();
+
+        return response()->json(['message' => 'Work deleted successfully.'], 200);
+    }
 }
