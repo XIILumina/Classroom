@@ -59,11 +59,12 @@ export default function Authenticated({ user, header, children }) {
             <nav className="bg-white border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        <div className="flex">
+                        <div className="flex items-center">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/">
                                     <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
+                                <span className="ml-2 text-xl font-semibold text-gray-800">Classroom</span>
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -79,11 +80,12 @@ export default function Authenticated({ user, header, children }) {
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            <img
-                                src={selectedImage}
-                                alt="Profile"
-                                className="h-10 w-10 rounded-full object-cover border border-gray-300"
-                            />
+                            <Link href={route('profile.edit')}>
+                                <img
+                                    src={selectedImage}
+                                    className="h-10 w-10 rounded-full object-cover border border-gray-300 cursor-pointer"
+                                />
+                            </Link>
                             <div className="ms-3 relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
