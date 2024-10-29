@@ -30,10 +30,10 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                             {auth.user ? (
                             <Link
-                                href={route('dashboard')}
+                                href={route('Classroom')}
                                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 transition duration-300"
                             >
-                                Dashboard
+                                Enter Home page
                             </Link>
                         ) : (
                             <>

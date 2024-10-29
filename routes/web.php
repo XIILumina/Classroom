@@ -1,5 +1,6 @@
 <?php
-
+use App\Http\Controllers\WorkController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StorageController;
@@ -45,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/class/{id}', [ClassController::class, 'show'])->name('class.show');
     Route::post('/class/create', [ClassController::class, 'store'])->name('class.store');
 
+
     // Course routes
     Route::post('/courses/store', [CourseController::class, 'store'])->name('courses.store');
     Route::post('/courses/join', [CourseController::class, 'join'])->name('courses.join');
@@ -52,6 +54,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Storage routes
     Route::post('/api/image', [StorageController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::get('/api/image/get', [StorageController::class, 'getPhoto'])->name('profile.photo.get');
+
+    //admin stuff
+    Route::get('/admin/user/edit/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
+    Route::put('/admin/user/update/{id}', [AdminController::class, 'update'])->name('admin.user.update');
+
+    Route::post('/class/works', [WorkController::class, 'store']);
+    Route::get('/class/{id}/works', [WorkController::class, 'index']);
 });
 
 // Additional public routes
@@ -59,7 +68,7 @@ Route::get('/classes', function () {
     return Inertia::render('classes');
 })->name('classes');
 
-Route::get('/classrooms', function () {
+Route::get('/classroom', function () {
     return Inertia::render('Classrooms/ClassPage');
 })->name('classrooms');
 

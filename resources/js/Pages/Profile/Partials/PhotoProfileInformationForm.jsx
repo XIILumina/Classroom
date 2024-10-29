@@ -11,6 +11,7 @@ export default function UpdateProfilePhoto({ auth, className = "" }) {
     
     const [selectedImage, setSelectedImage] = useState(null);
     const [photoUpdated, setPhotoUpdated] = useState(false);
+    const [imageSelected, setImageSelected] = useState(false); // Новое состояние
 
     useEffect(() => {
         fetch("/api/image/get")
@@ -24,6 +25,7 @@ export default function UpdateProfilePhoto({ auth, className = "" }) {
         const file = e.target.files[0];
         setData("avatar", file);
         setSelectedImage(URL.createObjectURL(file));
+        setImageSelected(!!file); // Установим состояние в true, если файл выбран
     };
 
     const handleSubmit = async (e) => {
@@ -36,6 +38,7 @@ export default function UpdateProfilePhoto({ auth, className = "" }) {
             data: formData,
             onSuccess: () => {
                 setPhotoUpdated(true);
+                setImageSelected(false); // Сбросить состояние после успешного обновления
             },
             onError: () => {
                 setPhotoUpdated(false);
@@ -64,18 +67,28 @@ export default function UpdateProfilePhoto({ auth, className = "" }) {
                 >
                     <div>
                         <InputLabel htmlFor="avatar" value="Profile Photo" />
-                        <input
-                            id="avatar"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            className="mt-1 block w-full"
-                        />
+                        <div className="mt-1">
+                            <input
+                                id="avatar"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="hidden" // Скрываем оригинальный input
+                            />
+                            <label
+                                htmlFor="avatar"
+                                className="cursor-pointer inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                Choose File
+                            </label>
+                        </div>
                         <InputError className="mt-2" message={errors.avatar} />
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                        {imageSelected && ( // Условный рендеринг кнопки Save
+                            <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                        )}
                         {photoUpdated && (
                             <p className="text-sm text-green-600">
                                 Profile photo updated!
@@ -91,7 +104,7 @@ export default function UpdateProfilePhoto({ auth, className = "" }) {
                         <img
                             src={selectedImage}
                             alt="Profile Preview"
-                            className="w-32 h-32 object-cover rounded-full border" // Updated size to be square
+                            className="w-32 h-32 object-cover rounded-full border"
                         />
                     </div>
                 )}

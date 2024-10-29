@@ -39,7 +39,6 @@ class ClassController extends Controller
     $newClass = Classroom::create([
         'name' => $request->name,
         'teacher_id' => auth()->id(), // Automatically assign the logged-in teacher
-        'work_id' => $request->input('work_id'), // Make sure work_id is optional
     ]);
 
     // Debugging: See what data is coming in
