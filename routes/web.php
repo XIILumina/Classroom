@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Class routes
     Route::resource('class', ClassController::class)->except(['index', 'show']);
-    Route::get('/class/{id}', [ClassController::class, 'show'])->name('class.show');
+    Route::get('/class/{id}/show', [ClassController::class, 'show'])->name('class.show');
     Route::post('/class/create', [ClassController::class, 'store'])->name('class.store');
 
     // Course routes
@@ -60,14 +60,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/admin/user/update/{id}', [AdminController::class, 'update'])->name('admin.user.update');
 
     // Class work routes
-    Route::prefix('api')->group(function () {
     Route::get('/class/{classId}/works', [WorkController::class, 'index'])->name('class.works.index');
-    Route::post('/class/{classId}/works', [WorkController::class, 'store'])->name('class.works.store');
+    Route::post('/class/{classId}/works/store', [WorkController::class, 'store'])->name('class.works.store');
     Route::put('/class/{classId}/works/{id}', [WorkController::class, 'update'])->name('class.works.update');
     Route::delete('/class/{classId}/works/{id}', [WorkController::class, 'destroy'])->name('class.works.destroy');
-    
-    
-});
 });
 // In web.php
 Route::get('/classroom/{id}', function ($id) {

@@ -18,15 +18,18 @@ class WorkController extends Controller
 public function store(Request $request, $classId)
 {
     $validatedData = $request->validate([
-        'class_id' => 'required|integer', // Update validation to match the fetch request
+        'classId' => 'required', // Update validation to match the fetch request
         'title' => 'required|string|max:255',
         'description' => 'required|string',
     ]);
 
     // Assuming you have a Work model and it's set up properly
     $work = Work::create([
-        'class_id' => $validatedData['class_id'], // Use the validated class_id
+        'user_id' => auth()->user()->id,
+        'teacher_id' => auth()->user()->id,
+        'class_id' => $validatedData['classId'], // Use the validated class_id
         'title' => $validatedData['title'],
+        'status' => "pending",
         'description' => $validatedData['description'],
     ]);
 

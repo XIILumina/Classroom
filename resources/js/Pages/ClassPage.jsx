@@ -10,7 +10,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
     // Function to fetch available works for the class
     const fetchAvailableWorks = async () => {
         try {
-            const response = await fetch(`/api/classes/${classId}/works`);
+            const response = await fetch(`/class/${classId}/works`);
             const data = await response.json();
             setWorks(Array.isArray(data.works) ? data.works : []); // Ensure response works is an array
         } catch (error) {
@@ -21,7 +21,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
     // Function to create a new work
     const handleCreateWork = async () => {
         try {
-            const response = await fetch('/api/classroom/works', {
+            const response = await fetch(`/class/${classId}/works/store`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

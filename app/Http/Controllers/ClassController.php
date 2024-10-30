@@ -24,6 +24,7 @@ class ClassController extends Controller
         $quests = $class->quests; // Assuming the class has related quests
 
         return Inertia::render('ClassPage', [
+            'classId' => $id,
             'classDetails' => $class,
             'quests' => $quests,
         ]);
