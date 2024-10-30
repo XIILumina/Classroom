@@ -130,7 +130,7 @@ export default function Dashboard({ auth, classes }) {
                         {classes.map((classItem, index) => (
                             <a
                                 key={classItem.id}
-                                href={`/class/${classItem.id}`}
+                                href={`/class/${classItem.id}/show`}
                                 className={`${cardColors[index % cardColors.length]} rounded-lg shadow-md p-6 h-64 transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer block duration-200`}
                             >
                                 <h3 className="text-xl font-semibold text-gray-800 mb-4">{classItem.name}</h3>

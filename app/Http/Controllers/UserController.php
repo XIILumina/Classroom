@@ -11,23 +11,22 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // Show the dashboard based on role
-    // public function index(Request $request)
-    // {
-    //     $user = $request->user();
+    public function index(Request $request)
+    {
+        $user = $request->user();
 
-    //     if ($user->role === 'admin') {
-    //         $users = User::all();
-    //         $logs = []; // Placeholder for logs. Replace with log retrieval logic
-    //         return Inertia::render('AdminDashboard', ['users' => $users, 'logs' => $logs]);
-    //     } elseif ($user->role === 'teacher') {
-    //         $classes = Classroom::where('teacher_id', $user->id)->get();
-    //         return Inertia::render('TeacherDashboard', ['classes' => $classes]);
-    //     } else {
-    //         $assignments = Assignment::where('user_id', $user->id)->get();
-    //         return Inertia::render('UserDashboard', ['assignments' => $assignments]);
-    //     }
-    // }
+        if ($user->role === 'admin') {
+            $users = User::all();
+            $logs = []; // Placeholder for logs. Replace with log retrieval logic
+            return Inertia::render('AdminDashboard', ['users' => $users, 'logs' => $logs]);
+        } elseif ($user->role === 'teacher') {
+            $classes = Classroom::where('teacher_id', $user->id)->get();
+            return Inertia::render('TeacherDashboard', ['classes' => $classes]);
+        } else {
+            $assignments = Assignment::where('user_id', $user->id)->get();
+            return Inertia::render('UserDashboard', ['assignments' => $assignments]);
+        }
+    }
 
     // Admin: Edit user details (name, password, role)
     public function editUser($id)
