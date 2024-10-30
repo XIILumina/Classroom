@@ -7,17 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Work extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'name',
-        'teacher_id', // Make sure this is correct
-        'work_id',
+        'class_id',
+        'user_id',
+        'teacher_id',
         'title',
         'description',
         'status',
+
     ];
-    // app/Models/Work.php
-    public function assignments()
+
+    public function classroom()
     {
-        return $this->hasMany(Assignment::class);
+        return $this->belongsTo(Classroom::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClassController;
@@ -46,7 +47,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/class/{id}', [ClassController::class, 'show'])->name('class.show');
     Route::post('/class/create', [ClassController::class, 'store'])->name('class.store');
 
-
     // Course routes
     Route::post('/courses/store', [CourseController::class, 'store'])->name('courses.store');
     Route::post('/courses/join', [CourseController::class, 'join'])->name('courses.join');
@@ -55,22 +55,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/image', [StorageController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::get('/api/image/get', [StorageController::class, 'getPhoto'])->name('profile.photo.get');
 
-    //admin stuff
+    // Admin routes
     Route::get('/admin/user/edit/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
     Route::put('/admin/user/update/{id}', [AdminController::class, 'update'])->name('admin.user.update');
 
-    Route::post('/class/works', [WorkController::class, 'store']);
-    Route::get('/class/{id}/works', [WorkController::class, 'index']);
+    // Class work routes
+    Route::prefix('api')->group(function () {
+    Route::get('/class/{classId}/works', [WorkController::class, 'index'])->name('class.works.index');
+    Route::post('/class/{classId}/works', [WorkController::class, 'store'])->name('class.works.store');
+    Route::put('/class/{classId}/works/{id}', [WorkController::class, 'update'])->name('class.works.update');
+    Route::delete('/class/{classId}/works/{id}', [WorkController::class, 'destroy'])->name('class.works.destroy');
+    
+    
 });
+});
+// In web.php
+Route::get('/classroom/{id}', function ($id) {
+    return Inertia::render('Classrooms/ClassPage', [
+        'classId' => $id,
+        'auth' => auth()->user()
+    ]);
+})->name('classroom.show');
 
 // Additional public routes
 Route::get('/classes', function () {
     return Inertia::render('classes');
 })->name('classes');
 
-Route::get('/classroom', function () {
-    return Inertia::render('Classrooms/ClassPage');
-})->name('classrooms');
+Route::get('/classroom/{id}', function ($id) {
+    return Inertia::render('Classrooms/ClassPage', [
+        'params' => ['id' => $id]
+    ]);
+})->name('classroom.show');
+
 
 Route::get('/works', function () {
     return Inertia::render('works');

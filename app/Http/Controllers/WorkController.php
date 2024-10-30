@@ -8,34 +8,33 @@ use Illuminate\Http\Request;
 class WorkController extends Controller
 {
     public function index($classId)
-    {
-        $works = Work::where('class_id', $classId)->get();
-        return response()->json(['works' => $works]);
-    }
+{
+    $works = Work::where('class_id', $classId)->get();
+    
+    // Ensure the response is JSON
+    return response()->json(['works' => $works], 200);
+}
 
-    public function store(Request $request)
-    {
-        $work = Work::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'class_id' => $request->classId,
-        ]);
+public function store(Request $request, $classId)
+{
+    $validatedData = $request->validate([
+        'class_id' => 'required|integer', // Update validation to match the fetch request
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+    ]);
 
-        return response()->json(['work' => $work], 201);
-    }
+    // Assuming you have a Work model and it's set up properly
+    $work = Work::create([
+        'class_id' => $validatedData['class_id'], // Use the validated class_id
+        'title' => $validatedData['title'],
+        'description' => $validatedData['description'],
+    ]);
 
+    return response()->json(['success' => true, 'work' => $work]);
+}
     public function update(Request $request, $id)
     {
-        // Validate request data
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        // Find the work by ID
         $work = Work::findOrFail($id);
-        
-        // Update the work details
         $work->update([
             'title' => $request->title,
             'description' => $request->description,
@@ -46,10 +45,9 @@ class WorkController extends Controller
 
     public function destroy($id)
     {
-        // Find the work by ID and delete it
         $work = Work::findOrFail($id);
         $work->delete();
 
-        return response()->json(['message' => 'Work deleted successfully.'], 200);
+        return response()->json(['message' => 'Work deleted successfully']);
     }
 }
