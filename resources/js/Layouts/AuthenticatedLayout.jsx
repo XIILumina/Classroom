@@ -61,15 +61,15 @@ export default function Authenticated({ user, header, children }) {
                     <div className="flex justify-between h-16">
                         <div className="flex items-center">
                             <div className="shrink-0 flex items-center">
-                                <Link href="/Welcome">
+                                <NavLink href={route("welcome")}>
                                     <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
+                                </NavLink>
                                 <span className="ml-2 text-xl font-semibold text-gray-800">Classroom</span>
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>Home Page</NavLink>
-                                <NavLink href={route('works')} active={route().current('works')}> Works </NavLink>
+                                {/* <NavLink href={route('works')} active={route().current('works')}> Works </NavLink> */}
                                 {isTeacher && (
                                     <>
                                         <NavLink href={route('adminPanel')} active={route().current('adminPanel')}>Admin Panel</NavLink>
