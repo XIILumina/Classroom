@@ -103,7 +103,6 @@ export default function UpdateProfilePhoto({ auth, className = "" }) {
                     <div className="text-center">
                         <img
                             src={selectedImage}
-                            alt="Profile Preview"
                             className="w-32 h-32 object-cover rounded-full border"
                         />
                     </div>
