@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { FaCheck, FaTimes } from 'react-icons/fa'; // Import the icons
 
 const ClassPage = ({ classId, availableWorks, auth }) => {
     const [title, setTitle] = useState('');
@@ -7,12 +8,11 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
     const [file, setFile] = useState(null);
     const [works, setWorks] = useState(Array.isArray(availableWorks) ? availableWorks : []);
     const [isFormVisible, setIsFormVisible] = useState(false);
-    const [visibleFileInputs, setVisibleFileInputs] = useState({});
     const [selectedFiles, setSelectedFiles] = useState({});
     const [newComment, setNewComment] = useState({});
-    const [error, setError] = useState(null); // For error handling
+    const [error, setError] = useState(null);
 
-    // Fetch works and comments
+
     const fetchAvailableWorks = async () => {
         try {
             const response = await fetch(`/class/${classId}/works`);
@@ -23,7 +23,6 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }
     };
 
-    // Handle work creation
     const handleCreateWork = async () => {
         try {
             const formData = new FormData();
@@ -56,7 +55,6 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }
     };
 
-    // Handle status change
     const handleStatusChange = async (workId, currentStatus) => {
         const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
 
@@ -84,7 +82,6 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }
     };
 
-    // Handle file selection
     const handleFileChange = (workId, file) => {
         setSelectedFiles((prev) => ({
             ...prev,
@@ -92,7 +89,6 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }));
     };
 
-    // Handle file upload
     const handleFileUpload = async (workId) => {
         const selectedFile = selectedFiles[workId];
 
@@ -125,7 +121,6 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }
     };
 
-    // Handle comment input change
     const handleCommentChange = (workId, value) => {
         setNewComment((prev) => ({
             ...prev,
@@ -133,7 +128,6 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }));
     };
 
-    // Handle comment submission
     const handleCommentSubmit = async (workId) => {
         const commentText = newComment[workId];
         if (!commentText) {
@@ -167,15 +161,27 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }
     };
 
-    // Fetch works and comments on component mount
     useEffect(() => {
         fetchAvailableWorks();
     }, [classId]);
 
+    const getStatusClass = (status) => {
+        switch (status) {
+            case 'approved':
+                return 'bg-green-100'; // Light green background for approved
+            case 'pending':
+                return 'bg-yellow-100'; // Light yellow background for pending
+            case 'rejected':
+                return 'bg-red-100'; // Light red background for rejected
+            default:
+                return 'bg-white'; // Default background
+        }
+    };
+
     return (
         <AuthenticatedLayout user={auth}>
-            <div className="flex min-h-screen bg-gray-100">
-                <aside className="w-64 bg-white shadow-md border-r border-gray-200 p-6">
+            <div className="flex min-h-screen bg-gray-50">
+                <aside className="w-64 bg-white shadow-lg border-r border-gray-200 p-6">
                     <h2 className="text-2xl font-bold text-blue-600">Menu</h2>
                     <nav className="mt-4">
                         <ul>
@@ -215,7 +221,6 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                                         placeholder="Work Description"
                                         className="border border-gray-300 rounded p-2 w-full mb-2"
                                     ></textarea>
-
                                     <button
                                         type="submit"
                                         className="bg-blue-600 text-white rounded p-2 hover:bg-blue-500 transition duration-300 shadow-md"
@@ -232,31 +237,45 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                     <h1 className="text-3xl font-bold text-gray-800 mb-6">Class ID: {classId}</h1>
 
                     <div>
-                        <h2 className="text-xl font-semibold">Available Works</h2>
+                        <h2 className="text-xl font-semibold mb-2">Available Works</h2>
                         <ul className="mt-4">
                             {works.length === 0 ? (
                                 <li className="text-gray-500 italic">No works available.</li>
                             ) : (
                                 works.map((work) => (
-                                    <li key={work.id} className="border border-gray-300 p-4 rounded mb-4">
-                                        <h3 className="font-bold">{work.title}</h3>
-                                        <p>{work.description}</p>
-                                        <p>Status: {work.status}</p>
-                                        <button
-                                            onClick={() => handleStatusChange(work.id, work.status)}
-                                            className="mt-2 text-blue-600"
-                                        >
-                                            Change Status
-                                        </button>
+                                    <li key={work.id} className={`border border-gray-300 p-4 rounded-lg mb-4 transition-all duration-300 ${getStatusClass(work.status)}`}>
+                                        <h3 className="font-bold text-lg">{work.title}</h3>
+                                        <p className="text-gray-700">{work.description}</p>
+                                        <p className="text-sm text-gray-500">Status: {work.status}</p>
+                                        
+                                        {auth.user.role === 'teacher' && (
+                                            <div className="flex space-x-2 mt-2">
+                                                <button
+                                                    onClick={() => handleStatusChange(work.id, 'approved')}
+                                                    className="text-green-600 hover:text-green-500"
+                                                    title="Approve"
+                                                >
+                                                    <FaCheck />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleStatusChange(work.id, 'rejected')}
+                                                    className="text-red-600 hover:text-red-500"
+                                                    title="Reject"
+                                                >
+                                                    <FaTimes />
+                                                </button>
+                                            </div>
+                                        )}
+
 
                                         <input
                                             type="file"
                                             onChange={(e) => handleFileChange(work.id, e.target.files[0])}
-                                            className="mt-2"
+                                            className="mt-4 block w-full text-sm text-gray-500 border border-gray-300 rounded p-1"
                                         />
                                         <button
                                             onClick={() => handleFileUpload(work.id)}
-                                            className="mt-2 bg-green-600 text-white rounded p-1 hover:bg-green-500"
+                                            className="mt-2 bg-green-600 text-white rounded p-1 hover:bg-green-500 transition duration-300"
                                         >
                                             Upload File
                                         </button>
@@ -266,7 +285,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                                             <div>
                                                 {work.comments && work.comments.length > 0 ? (
                                                     work.comments.map((comment) => (
-                                                        <div key={comment.id} className="border border-gray-200 p-2 rounded mt-2">
+                                                        <div key={comment.id} className="border border-gray-200 p-2 rounded mt-2 bg-gray-50">
                                                             {comment.text}
                                                         </div>
                                                     ))
@@ -281,11 +300,11 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                                                 ></textarea>
                                                 <button
                                                     onClick={() => handleCommentSubmit(work.id)}
-                                                    className="mt-2 bg-blue-600 text-white rounded p-1 hover:bg-blue-500"
+                                                    className="mt-2 bg-blue-600 text-white rounded p-1 hover:bg-blue-500 transition duration-300"
                                                 >
                                                     Submit Comment
                                                 </button>
-                                                {error && <p className="text-red-500 mt-2">{error}</p>} {/* Display error message */}
+                                                {error && <p className="text-red-500 mt-2">{error}</p>}
                                             </div>
                                         </div>
                                     </li>
