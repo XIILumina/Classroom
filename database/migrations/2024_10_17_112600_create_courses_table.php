@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
+            $table->string('inviteCode');
             $table->string('name'); // Kursa nosaukums
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade'); // Atsauce uz skolotāja ID

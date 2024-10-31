@@ -9,6 +9,7 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
+        'inviteCode',
         'name',
         'teacher_id', // Make sure this is correct
         'work_id',

@@ -114,17 +114,15 @@ export default function Dashboard({ auth, classes }) {
                                 {auth.user.name}!
                             </Link>
                         </h1>
-                        {/* Отображаем изображение профиля справа от приветственного сообщения */}
                         {selectedImage && (
                             <img
                                 src={selectedImage}
                                 className="h-12 w-12 rounded-full object-cover border border-gray-300"
-                                alt="Profile"
                             />
                         )}
                     </div>
 
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Your Classes</h2>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Your Classes:</h2>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
                         {classes.map((classItem, index) => (

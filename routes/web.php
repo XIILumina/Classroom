@@ -48,8 +48,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/class/create', [ClassController::class, 'store'])->name('class.store');
 
     // Course routes
-    Route::post('/courses/store', [CourseController::class, 'store'])->name('courses.store');
-    Route::post('/courses/join', [CourseController::class, 'join'])->name('courses.join');
+    Route::post('/Courses/store', [CourseController::class, 'store'])->name('courses.store');
+    Route::post('/Courses/join', [CourseController::class, 'join'])->name('courses.join');
 
     // Storage routes
     Route::post('/api/image', [StorageController::class, 'updatePhoto'])->name('profile.photo.update');
@@ -104,3 +104,7 @@ Route::get('/storage/{any}', function ($any) {
 
 // Authentication routes
 require __DIR__.'/auth.php';
+
+Route::get('/Courses', function () {
+    return Inertia::render('Courses');
+})->name('Courses');
