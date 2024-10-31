@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('teacher_id')->nullable()->constrained('users');
             $table->string('title');
             $table->text('description');
+            $table->string('file_path')->nullable(); 
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });
