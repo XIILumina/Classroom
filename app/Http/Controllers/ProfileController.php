@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Log; // Ensure you import the Log model
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,9 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        // Log the action of viewing the profile edit form
+        $this->storeLog(auth()->id(), 'Viewed profile edit', 'User accessed the profile edit form.');
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
@@ -37,7 +41,10 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit');
+        // Log the profile update
+        $this->storeLog(auth()->id(), 'Updated profile', 'User updated their profile information.');
+
+        return Redirect::route('profile.edit')->with('success', 'Profile updated successfully.');
     }
 
     /**
@@ -45,25 +52,28 @@ class ProfileController extends Controller
      */
     public function updateProfilePhoto(Request $request): RedirectResponse
     {
-        // Валидируем файл
+        // Validate the file
         $request->validate([
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Получаем файл
+        // Get the file
         $file = $request->file('avatar');
 
-        // Создаем уникальное имя файла
+        // Create a unique filename
         $filename = time() . '.' . $file->getClientOriginalExtension();
 
-        // Сохраняем файл в папку public/avatars
+        // Save the file in the public/avatars folder
         $file->move(public_path('avatars'), $filename);
 
-        // Обновляем профиль пользователя
+        // Update the user's profile
         $user = auth()->user();
         $user->update([
             'avatar' => $filename,
         ]);
+
+        // Log the profile photo update
+        $this->storeLog(auth()->id(), 'Updated profile photo', 'User updated their profile photo.');
 
         return back()->with('success', 'Profile photo updated successfully.');
     }
@@ -86,6 +96,20 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        // Log the account deletion
+        $this->storeLog(auth()->id(), 'Deleted account', 'User deleted their account.');
+
         return Redirect::to('/');
+    }
+
+    // Add the storeLog method here
+    private function storeLog($userId, $action, $details = null)
+    {
+        Log::create([
+            'user_id' => $userId,
+            'action' => $action,
+            'details' => $details,
+            'created_at' => now(),
+        ]);
     }
 }

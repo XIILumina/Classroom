@@ -13,11 +13,12 @@ return new class extends Migration
 {
     Schema::create('logs', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Reference to the user
-        $table->string('action'); // Action description
-        $table->text('details')->nullable(); // Additional details if needed
-        $table->timestamps();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key to the users table
+        $table->string('action'); // Action performed
+        $table->text('details')->nullable(); // Additional details about the action
+        $table->timestamps(); // created_at and updated_at timestamps
     });
+    
 }
 
     /**

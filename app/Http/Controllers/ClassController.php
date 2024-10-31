@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Classroom;
+use App\Models\Log; // Ensure you import the Log model
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,6 +13,9 @@ class ClassController extends Controller
     public function index()
     {
         $classes = Classroom::all(); // Fetch all classes
+        // Log the action of viewing classes
+        $this->storeLog(auth()->id(), 'Viewed classes', 'User accessed the classes dashboard.');
+
         return Inertia::render('Dashboard', [
             'classes' => $classes,
         ]);
@@ -29,61 +33,31 @@ class ClassController extends Controller
             'quests' => $quests,
         ]);
     }
-    public function store(Request $request)
-{
-    // Validate the request data
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-    ]);
 
-    // Create a new class and automatically set the teacher_id
-    $newClass = Classroom::create([
-        'name' => $request->name,
-        'teacher_id' => auth()->id(), // Automatically assign the logged-in teacher
-    ]);
-
-    // Debugging: See what data is coming in
-    // dd($request->all()); // Uncomment this for testing to see request data
-
-    // Save the class and redirect
-    if ($newClass) {
-        return redirect()->back()->with('success', 'Class created successfully');
-    } else {
-        return redirect()->back()->with('error', 'Failed to create class');
-    }
-}
-    
     // Create a new class (only for admins and teachers)
-    // public function store(Request $request)
-    // {
-    //     // Validate the input
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'teacher_id' => 'required|exists:users,id',
-    //         'work_id' => 'required|string|max:255',
-    //         'user_id' => 'required|string|max:255',
-    //     ]);
+    public function store(Request $request)
+    {
+        // Validate the request data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
 
-    //     // Check if user is an admin or teacher
-    //     if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'teacher') {
-    //         abort(403, 'Unauthorized action.');
-    //     }
+        // Create a new class and automatically set the teacher_id
+        $newClass = Classroom::create([
+            'name' => $request->name,
+            'teacher_id' => auth()->id(), // Automatically assign the logged-in teacher
+        ]);
 
-    //     // Create the class with the unique invitation code automatically generated
-    //     $classroom = Classroom::create([
-    //         'name' => $request->name,
-    //         'teacher_id' => $request->teacher_id,
-    //         'work_id' => $request->work_id,
-    //         'user_id' => $request->user_id,
-    //     ]);
-    //     dd($request->all()); // Debugging: See what data is coming in
+        // Log the class creation
+        $this->storeLog(auth()->id(), 'Created class', 'Class created: ' . $newClass->name);
 
-    // $validated = $request->validate([
-    //     'name' => 'required|string|max:255',
-    //     // other validations...
-    // ]);
-    //     return redirect()->back()->with('success', 'Classroom created successfully with code: ' . $classroom->invitation_code);
-    // }
+        // Save the class and redirect
+        if ($newClass) {
+            return redirect()->back()->with('success', 'Class created successfully');
+        } else {
+            return redirect()->back()->with('error', 'Failed to create class');
+        }
+    }
 
     // Edit a class (only for admins and teachers)
     public function edit($id)
@@ -109,6 +83,9 @@ class ClassController extends Controller
             'name' => $request->name,
         ]);
 
+        // Log the class update
+        $this->storeLog(auth()->id(), 'Updated class', 'Class updated: ' . $classroom->name);
+
         return redirect()->route('dashboard')->with('success', 'Classroom updated successfully.');
     }
 
@@ -123,6 +100,20 @@ class ClassController extends Controller
 
         $classroom->delete();
 
+        // Log the class deletion
+        $this->storeLog(auth()->id(), 'Deleted class', 'Class deleted: ' . $classroom->name);
+
         return redirect()->back()->with('success', 'Classroom deleted successfully.');
+    }
+
+    // Add the storeLog method here
+    private function storeLog($userId, $action, $details = null)
+    {
+        Log::create([
+            'user_id' => $userId,
+            'action' => $action,
+            'details' => $details,
+            'created_at' => now(),
+        ]);
     }
 }

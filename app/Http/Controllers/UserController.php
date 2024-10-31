@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Classroom;
 use App\Models\Assignment;
+use App\Models\Log; // Ensure you import the Log model
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
@@ -51,6 +52,9 @@ class UserController extends Controller
         $user->role = $request->role;
         $user->save();
 
+        // Log the user update action
+        $this->storeLog($request->user()->id, 'Updated user details', "User {$user->name} was updated.");
+
         return redirect()->route('admin.dashboard')->with('success', 'User updated successfully');
     }
 
@@ -66,6 +70,9 @@ class UserController extends Controller
             'teacher_id' => $request->user()->id,
         ]);
 
+        // Log the class creation
+        $this->storeLog($request->user()->id, 'Created class', "Class {$request->name} was created.");
+
         return redirect()->route('teacher.dashboard')->with('success', 'Class created successfully');
     }
 
@@ -73,6 +80,10 @@ class UserController extends Controller
     public function inviteUserToClass(Request $request, $classId)
     {
         // Logic for sending invitation (via code, QR, notification) can be added here
+
+        // Log the invitation action
+        $this->storeLog($request->user()->id, 'Invited user to class', "User invited to class ID {$classId}.");
+
         return response()->json(['success' => 'User invited successfully']);
     }
 
@@ -87,6 +98,9 @@ class UserController extends Controller
         $path = $request->file('file')->store('assignments');
         $assignment->file_path = $path;
         $assignment->save();
+
+        // Log the assignment submission
+        $this->storeLog($request->user()->id, 'Submitted assignment', "Assignment ID {$assignmentId} submitted.");
 
         return redirect()->back()->with('success', 'Assignment submitted successfully');
     }
@@ -104,7 +118,20 @@ class UserController extends Controller
             'comment' => $request->comment,
         ]);
 
+        // Log the comment action
+        $this->storeLog($request->user()->id, 'Commented on assignment', "Comment added to assignment ID {$assignmentId}.");
+
         return redirect()->back()->with('success', 'Comment added successfully');
     }
-}
 
+    // Add the storeLog method here
+    private function storeLog($userId, $action, $details = null)
+    {
+        Log::create([
+            'user_id' => $userId,
+            'action' => $action,
+            'details' => $details,
+            'created_at' => now(),
+        ]);
+    }
+}

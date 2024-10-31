@@ -11,7 +11,8 @@ class Log extends Model
 
     protected $fillable = [
         'user_id',  // ID of the user who performed the action
-        'action',   // Description of the action performed
+        'action',
+        'details',
     ];
 
     // Define the relationship with the User model

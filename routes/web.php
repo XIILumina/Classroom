@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LogsController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClassController;
@@ -76,6 +77,10 @@ Route::patch('/class/{classId}/works/{workId}/status', [WorkController::class, '
     Route::get('/admin/users/{id}/edit', [AdminController::class, 'edit']);
     Route::put('/admin/users/{id}', [AdminController::class, 'update']);
 
+    Route::get('/logs', [LogsController::class, 'showLogs'])->name('logs');
+    
+    
+
 });   
 // In web.php
 Route::get('/classroom/{id}', function ($id) {
@@ -101,9 +106,6 @@ Route::get('/works', function () {
     return Inertia::render('works');
 })->name('works');
 
-Route::get('/logs', function () {
-    return Inertia::render('logs');
-})->name('logs');
 
 // Storage retrieval
 Route::get('/storage/{any}', function ($any) {
