@@ -64,7 +64,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/class/{classId}/works/store', [WorkController::class, 'store'])->name('class.works.store');
     Route::put('/class/{classId}/works/{id}', [WorkController::class, 'update'])->name('class.works.update');
     Route::delete('/class/{classId}/works/{id}', [WorkController::class, 'destroy'])->name('class.works.destroy');
-});
+
+
+    Route::get('/adminPanel', [AdminController::class, 'index'])->name('adminPanel');
+    Route::delete('/admin/users/{id}', [AdminController::class, 'destroy']);
+    Route::get('/admin/users/{id}/edit', [AdminController::class, 'edit']);
+    Route::put('/admin/users/{id}', [AdminController::class, 'update']);
+
+});   
 // In web.php
 Route::get('/classroom/{id}', function ($id) {
     return Inertia::render('Classrooms/ClassPage', [
@@ -92,10 +99,6 @@ Route::get('/works', function () {
 Route::get('/logs', function () {
     return Inertia::render('logs');
 })->name('logs');
-
-Route::get('/adminPanel', function () {
-    return Inertia::render('adminPanel');
-})->name('adminPanel');
 
 // Storage retrieval
 Route::get('/storage/{any}', function ($any) {

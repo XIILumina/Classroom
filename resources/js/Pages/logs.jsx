@@ -1,37 +1,47 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-export default function Logs({ auth, logs }) {
-    const isAdmin = auth.user.role === 'admin';
+const Logs = () => {
+    const [logs, setLogs] = useState([]);
+
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const response = await axios.get('/api/logs');
+                setLogs(response.data);
+            } catch (error) {
+                console.error("Error fetching logs:", error);
+            }
+        };
+
+        fetchLogs();
+    }, []);
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">User Logs</h2>}
-        >
-            <Head title="User Logs" />
-
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            <h3 className="text-lg font-semibold mb-4">Activity Logs</h3>
-                            {isAdmin ? (
-                                <ul className="list-disc pl-5">
-                                    {logs.map((log) => (
-                                        <li key={log.id}>
-                                            <span>{log.created_at}: </span>
-                                            <span className="font-semibold">{log.user_name}</span> performed <span>{log.action}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p>You do not have permission to view logs.</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </AuthenticatedLayout>
+        <div className="logs-container">
+            <h1>Admin Logs</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {logs.map(log => (
+                        <tr key={log.id}>
+                            <td>{log.user?.name}</td>
+                            <td>{log.action}</td>
+                            <td>{log.details}</td>
+                            <td>{new Date(log.created_at).toLocaleString()}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
-}
+};
+
+export default Logs;

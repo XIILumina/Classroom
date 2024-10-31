@@ -10,10 +10,7 @@ export default function Authenticated({ user, header, children }) {
     const [selectedImage, setSelectedImage] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [courseCode, setCourseCode] = useState('');
-    const [inviteCode, setInviteCode] = useState('');
-    const [showInviteModal, setShowInviteModal] = useState(false);
-    const [courseName, setCourseName] = useState(''); // Added state for course name
-    const isTeacher = ['teacher', 'admin'].includes(user.role); // Check user role
+    const isTeacher = ['teacher', 'admin'].includes(user.role); // Check if the user is teacher or admin
 
     useEffect(() => {
         fetch("/api/image/get")
@@ -23,26 +20,12 @@ export default function Authenticated({ user, header, children }) {
             });
     }, []);
 
-    const generateInviteCode = () => {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        let code = '';
-        for (let i = 0; i < 5; i++) {
-            code += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return code;
-    };
-
     const handleModalToggle = () => {
         setShowModal(!showModal);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Generate invite code
-        const newInviteCode = generateInviteCode();
-        setInviteCode(newInviteCode); // Set the invite code to be displayed
-        setShowInviteModal(true); // Open invite code modal
 
         const formData = new FormData();
         formData.append('courseName', courseCode);
@@ -60,8 +43,7 @@ export default function Authenticated({ user, header, children }) {
             });
 
             if (response.ok) {
-                setCourseName(courseCode); // Set course name
-                setCourseCode(''); // Clear input field
+                setCourseCode('');
             } else {
                 console.error('Error creating/joining course:', await response.json());
             }
@@ -75,11 +57,11 @@ export default function Authenticated({ user, header, children }) {
     return (
         <div className="min-h-screen bg-gray-100 relative">
             <nav className="bg-white border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center">
                             <div className="shrink-0 flex items-center">
-                                <Link href="/">
+                                <Link href="/Welcome">
                                     <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
                                 <span className="ml-2 text-xl font-semibold text-gray-800">Classroom</span>
@@ -91,7 +73,6 @@ export default function Authenticated({ user, header, children }) {
                                 {isTeacher && (
                                     <>
                                         <NavLink href={route('adminPanel')} active={route().current('adminPanel')}>Admin Panel</NavLink>
-                                        <NavLink href={route('logs')} active={route().current('logs')}>Logs</NavLink>
                                     </>
                                 )}
                             </div>
@@ -202,7 +183,7 @@ export default function Authenticated({ user, header, children }) {
                 </svg>
             </button>
 
-            {/* Modal for Course Creation/Joining */}
+            {/* Modal for Adding/Joining Courses */}
             {showModal && (
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-sm w-full">
@@ -214,13 +195,8 @@ export default function Authenticated({ user, header, children }) {
                                 </label>
                                 <input
                                     type="text"
-                                    value={courseCode} // Use only courseCode here
-                                    onChange={(e) => {
-                                        setCourseCode(e.target.value);
-                                        if (isTeacher) {
-                                            setCourseName(e.target.value); // Set courseName if teacher
-                                        }
-                                    }}
+                                    value={courseCode}
+                                    onChange={(e) => setCourseCode(e.target.value)}
                                     required
                                     className="border border-gray-300 rounded-md p-2 w-full"
                                 />
@@ -238,25 +214,6 @@ export default function Authenticated({ user, header, children }) {
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Invite Code Modal */}
-            {showInviteModal && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-                        <h3 className="text-lg font-semibold mb-4">Invite Code</h3>
-                        <p className="mb-4">Your invite code is: <strong>{inviteCode}</strong></p>
-                        <div className="flex justify-end">
-                            <button
-                                type="button"
-                                onClick={() => setShowInviteModal(false)}
-                                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-300"
-                            >
-                                Close
-                            </button>
-                        </div>
                     </div>
                 </div>
             )}

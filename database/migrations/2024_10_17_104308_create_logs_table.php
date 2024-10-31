@@ -9,15 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Links to the users table
-            $table->string('action'); // Stores the action performed by the user
-            $table->timestamps(); // Adds created_at and updated_at fields
-        });
-    }
+    public function up()
+{
+    Schema::create('logs', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Reference to the user
+        $table->string('action'); // Action description
+        $table->text('details')->nullable(); // Additional details if needed
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.
