@@ -10,8 +10,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-/*
+use App\Http\Controllers\CommentController;
+    /*
 |----------------------------------------------------------------------
 | Web Routes
 |----------------------------------------------------------------------
@@ -58,6 +58,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin routes
     Route::get('/admin/user/edit/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
     Route::put('/admin/user/update/{id}', [AdminController::class, 'update'])->name('admin.user.update');
+
+    Route::post('/class/{classId}/works/{workId}/comments', [CommentController::class, 'store']);
+
+
+Route::patch('/class/{classId}/works/{workId}/status', [WorkController::class, 'updateStatus']);
 
     // Class work routes
     Route::get('/class/{classId}/works', [WorkController::class, 'index'])->name('class.works.index');
@@ -108,3 +113,10 @@ require __DIR__.'/auth.php';
 Route::get('/Courses', function () {
     return Inertia::render('Courses');
 })->name('Courses');
+
+Route::prefix('class/{classId}/works')->group(function () {
+    Route::get('/', [WorkController::class, 'index']); // Fetch works for a class
+    Route::post('/store', [WorkController::class, 'store']); // Store a new work
+    Route::patch('/{workId}/status', [WorkController::class, 'updateStatus']); // Update work status
+    Route::post('/{workId}/add-file', [WorkController::class, 'addFile']); // Add file to work
+});
