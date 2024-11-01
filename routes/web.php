@@ -12,6 +12,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CommentController;
+
     /*
 |----------------------------------------------------------------------
 | Web Routes
@@ -78,7 +79,14 @@ Route::patch('/class/{classId}/works/{workId}/status', [WorkController::class, '
     Route::put('/admin/users/{id}', [AdminController::class, 'update']);
 
     Route::get('/logs', [LogsController::class, 'showLogs'])->name('logs');
-    
+
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('class/{classId}')->group(function () {
+        Route::patch('works/{workId}/comments/{commentId}', [ClassController::class, 'updateComment'])->name('comments.update');
+        Route::delete('works/{workId}/comments/{commentId}', [ClassController::class, 'deleteComment'])->name('comments.delete');
+    });
+});
+
     
 
 });   

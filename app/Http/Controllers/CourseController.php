@@ -11,24 +11,22 @@ class CourseController extends Controller
     {
         // Валидация входящих данных
         $validated = $request->validate([
-            'course_name' => 'required|string|max:255',
+            'courseName' => 'required|string|max:255', // Валидация имени курса
+            'inviteCode' => 'required|string|max:5', // Валидация инвайт-кода
         ]);
-
-        // Генерация инвайт-кода
-        $inviteCode = strtoupper(substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 5)); // Генерируем случайный инвайт-код из 5 букв
 
         // Создание нового курса
         $newCourse = Course::create([
-            'name' => $validated['course_name'],
+            'name' => $validated['courseName'], // Используем валидированные данные
             'teacher_id' => auth()->id(), // Автоматически назначаем текущего учителя
-            'inviteCode' => $inviteCode, // Сохраняем инвайт-код
+            'invite_code' => strtoupper($validated['inviteCode']), // Сохраняем инвайт-код в верхнем регистре
         ]);
 
         // Проверка успешности создания курса
         if ($newCourse) {
-            return redirect()->back()->with('success', 'Course created successfully. Invite Code: ' . $inviteCode);
+            return response()->json($newCourse, 201); // Возвращаем созданный курс в формате JSON
         } else {
-            return redirect()->back()->with('error', 'Failed to create course');
+            return response()->json(['error' => 'Failed to create course'], 500); // Обработка ошибки
         }
     }
 }
