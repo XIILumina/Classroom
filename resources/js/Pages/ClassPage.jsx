@@ -11,6 +11,8 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
     const [selectedFiles, setSelectedFiles] = useState({});
     const [newComment, setNewComment] = useState({});
     const [error, setError] = useState(null);
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editedComment, setEditedComment] = useState('');
 
 
     const fetchAvailableWorks = async () => {
@@ -127,13 +129,63 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
             [workId]: value,
         }));
     };
+    const handleEditComment = (commentId, currentText) => {
+        setEditingCommentId(commentId);
+        setEditedComment(currentText);
+    };
 
+    const handleEditCommentSubmit = async (workId, commentId) => {
+        if (!editedComment) {
+            alert("Please enter a comment.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/class/${classId}/works/${workId}/comments/${commentId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({ text: editedComment }),
+            });
+
+            if (response.ok) {
+                setEditingCommentId(null);
+                setEditedComment('');
+                fetchAvailableWorks();
+            } else {
+                setError('Failed to update comment.');
+            }
+        } catch (error) {
+            setError('An error occurred while updating the comment.');
+        }
+    };
+    const handleDeleteComment = async (workId, commentId) => {
+        try {
+            const response = await fetch(`/class/${classId}/works/${workId}/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+                },
+            });
+
+            if (response.ok) {
+                fetchAvailableWorks();
+            } else {
+                setError('Failed to delete comment.');
+            }
+        } catch (error) {
+            setError('An error occurred while deleting the comment.');
+        }
+    };
     const handleCommentSubmit = async (workId) => {
         const commentText = newComment[workId];
         if (!commentText) {
             alert("Please enter a comment.");
             return;
         }
+
 
         try {
             const response = await fetch(`/class/${classId}/works/${workId}/comments`, {
@@ -243,70 +295,64 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                                 <li className="text-gray-500 italic">No works available.</li>
                             ) : (
                                 works.map((work) => (
-                                    <li key={work.id} className={`border border-gray-300 p-4 rounded-lg mb-4 transition-all duration-300 ${getStatusClass(work.status)}`}>
+                                    <li key={work.id} className={`border border-gray-300 p-4 rounded-lg mb-4 ${getStatusClass(work.status)}`}>
                                         <h3 className="font-bold text-lg">{work.title}</h3>
                                         <p className="text-gray-700">{work.description}</p>
                                         <p className="text-sm text-gray-500">Status: {work.status}</p>
-                                        
-                                        {auth.user.role === 'teacher' && (
-                                            <div className="flex space-x-2 mt-2">
-                                                <button
-                                                    onClick={() => handleStatusChange(work.id, 'approved')}
-                                                    className="text-green-600 hover:text-green-500"
-                                                    title="Approve"
-                                                >
-                                                    <FaCheck />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleStatusChange(work.id, 'rejected')}
-                                                    className="text-red-600 hover:text-red-500"
-                                                    title="Reject"
-                                                >
-                                                    <FaTimes />
-                                                </button>
+
+                                        {work.comments && work.comments.length > 0 && (
+                                            <div className="mt-4">
+                                                <h4 className="font-semibold">Comments</h4>
+                                                {work.comments.map((comment) => (
+                                                    <div key={comment.id} className="border border-gray-200 p-2 rounded mt-2 bg-gray-50">
+                                                        {editingCommentId === comment.id ? (
+                                                            <div>
+                                                                <textarea
+                                                                    value={editedComment}
+                                                                    onChange={(e) => setEditedComment(e.target.value)}
+                                                                    className="border border-gray-300 rounded p-2 w-full"
+                                                                ></textarea>
+                                                                <button
+                                                                    onClick={() => handleEditCommentSubmit(work.id, comment.id)}
+                                                                    className="mt-2 bg-blue-600 text-white rounded p-1 hover:bg-blue-500 transition duration-300"
+                                                                >
+                                                                    Save
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <div>
+                                                                <p>{comment.text}</p>
+                                                                <button
+                                                                    onClick={() => handleEditComment(comment.id, comment.text)}
+                                                                    className="text-blue-600 hover:text-blue-500 mr-2"
+                                                                >
+                                                                    Edit
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteComment(work.id, comment.id)}
+                                                                    className="text-red-600 hover:text-red-500"
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
                                             </div>
                                         )}
-
-
-                                        <input
-                                            type="file"
-                                            onChange={(e) => handleFileChange(work.id, e.target.files[0])}
-                                            className="mt-4 block w-full text-sm text-gray-500 border border-gray-300 rounded p-1"
-                                        />
+                                        <textarea
+                                            value={newComment[work.id] || ''}
+                                            onChange={(e) => handleCommentChange(work.id, e.target.value)}
+                                            placeholder="Add a comment..."
+                                            className="border border-gray-300 rounded p-2 w-full mt-2"
+                                        ></textarea>
                                         <button
-                                            onClick={() => handleFileUpload(work.id)}
-                                            className="mt-2 bg-green-600 text-white rounded p-1 hover:bg-green-500 transition duration-300"
+                                            onClick={() => handleCommentSubmit(work.id)}
+                                            className="mt-2 bg-blue-600 text-white rounded p-1 hover:bg-blue-500 transition duration-300"
                                         >
-                                            Upload File
+                                            Submit Comment
                                         </button>
-
-                                        <div className="mt-4">
-                                            <h4 className="font-semibold">Comments</h4>
-                                            <div>
-                                                {work.comments && work.comments.length > 0 ? (
-                                                    work.comments.map((comment) => (
-                                                        <div key={comment.id} className="border border-gray-200 p-2 rounded mt-2 bg-gray-50">
-                                                            {comment.text}
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div className="text-gray-500 italic">No comments yet.</div>
-                                                )}
-                                                <textarea
-                                                    value={newComment[work.id] || ''}
-                                                    onChange={(e) => handleCommentChange(work.id, e.target.value)}
-                                                    placeholder="Add a comment..."
-                                                    className="border border-gray-300 rounded p-2 w-full mt-2"
-                                                ></textarea>
-                                                <button
-                                                    onClick={() => handleCommentSubmit(work.id)}
-                                                    className="mt-2 bg-blue-600 text-white rounded p-1 hover:bg-blue-500 transition duration-300"
-                                                >
-                                                    Submit Comment
-                                                </button>
-                                                {error && <p className="text-red-500 mt-2">{error}</p>}
-                                            </div>
-                                        </div>
+                                        {error && <p className="text-red-500 mt-2">{error}</p>}
                                     </li>
                                 ))
                             )}

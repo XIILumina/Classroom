@@ -123,7 +123,7 @@ Route::get('/storage/{any}', function ($any) {
 // Authentication routes
 require __DIR__.'/auth.php';
 
-Route::get('/courses', function () {
+Route::get('/Courses', function () {
     return Inertia::render('Courses');
 })->name('Courses');
 
