@@ -61,7 +61,7 @@ export default function Authenticated({ user, header, children }) {
                     <div className="flex justify-between h-16">
                         <div className="flex items-center">
                             <div className="shrink-0 flex items-center">
-                                <Link href="/Welcome">
+                                <Link href="/">
                                     <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
                                 <span className="ml-2 text-xl font-semibold text-gray-800">Classroom</span>
