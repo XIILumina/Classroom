@@ -3,24 +3,132 @@
 namespace App\Http\Controllers;
 
 use App\Models\Classroom;
+use App\Models\User;
 use App\Models\Log;
 use App\Models\Work;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\ClassroomUser; // Import the ClassroomUser model
+
 
 class ClassController extends Controller
 {
     // Display the dashboard with all classes
-    public function index()
-    {
-        $classes = Classroom::all();
-        $this->storeLog(auth()->id(), 'Viewed classes', 'User accessed the classes dashboard.');
+// public function index(Request $request)
+// {
+//     $classes = Classroom::with('creator')->get();
+    
+//     // Debugging: Check if classrooms have creators
+//     foreach ($classes as $class) {
+//         if (!$class->creator) {
+//             \Log::info("Classroom ID {$class->id} has no creator.");
+//         }
+//     }
 
-        return Inertia::render('Dashboard', [
-            'classes' => $classes,
+//     return Inertia::render('Dashboard', [
+//         'teacher_id' => $request->user()->name,
+//         'classes' => $classes,
+//         'users' => User::all(),
+        
+//     ]); 
+    
+// }
+
+public function addUsers(Request $request)
+{
+    // Validate request
+    $request->validate([
+        'classroom_id' => 'required|exists:classrooms,id',
+        'user_ids' => 'required|array',
+        'user_ids.*' => 'exists:users,id',
+    ]);
+
+    // Check permissions
+    if (!auth()->user()->can('add-users')) {
+        return response()->json(['error' => 'Unauthorized action.'], 403);
+    }
+
+    // Add users to the classroom
+    foreach ($request->user_ids as $userId) {
+        DB::table('classroom_user')->insert([
+            'classroom_id' => $request->classroom_id,
+            'user_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
+
+    return response()->json(['message' => 'Users added successfully.']);
+}
+
+
+
+public function index(Request $request)
+{
+    $user = $request->user();
+    
+    $classrooms = $user->allClassrooms();
+
+    // Debugging
+
+    return Inertia::render('Dashboard', [
+        'classrooms' => $classrooms,
+        'auth' => [
+            'user' => $user,
+        ],
+    ]);
+}
+
+
+
+
+
+public function addUsersToClass(Request $request)
+{
+    // Validate incoming request
+    $validated = $request->validate([
+        'classroom_id' => 'required|exists:classrooms,id',
+        'user_ids' => 'required|array',
+        'user_ids.*' => 'exists:users,id',
+    ]);
+
+    // Find the classroom
+    $classroom = Classroom::findOrFail($validated['classroom_id']);
+
+    // Log the IDs for debugging
+    \Log::info('Attaching users to classroom:', [
+        'classroom_id' => $validated['classroom_id'],
+        'user_ids' => $validated['user_ids'],
+    ]);
+
+    // Attach users to the classroom
+    $classroom->users()->attach($validated['user_ids']);
+
+    return response()->json(['message' => 'Users added successfully.'], 200);
+}
+
+
+public function addClass(Request $request)
+{
+    // Validācija
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'teacher_id' => 'required|exists:users,id',
+        'created_by' => 'required|exists:users,id',
+    ]);
+
+    // Klases izveide
+    $class = new Classroom();
+    $class->name = $request->name;
+    $class->teacher_id = $request->teacher_id;
+    $class->created_by = $request->created_by;
+    $class->save();
+
+    // Atgriež atbildi vai novirza uz citu lapu
+    return redirect()->back()->with('success', 'Class created successfully!');
+}
+
 
     // Show a specific class with quests
     public function show($id)
@@ -36,21 +144,21 @@ class ClassController extends Controller
     }
 
     // Create a new class
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255|unique:classrooms,name', // Added uniqueness validation
+    ]);
 
-        $newClass = Classroom::create([
-            'name' => $request->name,
-            'teacher_id' => auth()->id(),
-        ]);
+    $newClass = Classroom::create([
+        'name' => $validated['name'],
+        'teacher_id' => auth()->id(),
+    ]);
 
-        $this->storeLog(auth()->id(), 'Created class', 'Class created: ' . $newClass->name);
+    $this->storeLog(auth()->id(), 'Created class', 'Class created: ' . $newClass->name);
 
-        return redirect()->back()->with('success', 'Class created successfully');
-    }
+    return redirect()->back()->with('success', 'Class created successfully');
+}
 
     // Edit a class
     public function edit($id)

@@ -51,19 +51,19 @@ export default function Dashboard({ auth, classes }) {
         setInviteCode(newInviteCode);
         setShowInviteModal(true);
 
-        post('/course/create', { name: courseName, invite_code: newInviteCode }, {
-            onSuccess: (response) => {
-                // Update courses list upon successful creation
-                setCourses((prevCourses) => [...prevCourses, response.course]);
-                setCourseName('');
-                setShowModal(false);
-                setNewCourse(response.course); // Save the new course
-            },
-            onError: (error) => {
-                console.error('Failed to create course:', error);
-                alert('Failed to create course: ' + (error.message || 'An error occurred'));
-            }
-        });
+        // post('/course/create', { name: courseName, invite_code: newInviteCode }, {
+        //     onSuccess: (response) => {
+        //         // Update courses list upon successful creation
+        //         setCourses((prevCourses) => [...prevCourses, response.course]);
+        //         setCourseName('');
+        //         setShowModal(false);
+        //         setNewCourse(response.course); // Save the new course
+        //     },
+        //     onError: (error) => {
+        //         console.error('Failed to create course:', error);
+        //         alert('Failed to create course: ' + (error.message || 'An error occurred'));
+        //     }
+        // });
     };
 
     const generateInviteCode = () => {

@@ -16,6 +16,12 @@ class UserController extends Controller
     {
         $user = $request->user();
 
+        // Check if the request is for an API call
+        if ($request->wantsJson()) {
+            return response()->json(User::all()); // Return all users as JSON
+        }
+return response()->json(User::all());
+        // If it's a regular request, render the appropriate view based on the user's role
         if ($user->role === 'admin') {
             $users = User::all();
             $logs = []; // Placeholder for logs. Replace with log retrieval logic

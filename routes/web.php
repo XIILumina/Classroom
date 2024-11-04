@@ -35,9 +35,21 @@ Route::get('/', function () {
 })->name("welcome");
 
 // Authenticated routes
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [ClassController::class, 'index'])->name('dashboard');
+Route::post('/class/add-users', [ClassController::class, 'addUsersToClass']);
+
+Route::post('/class/create', [ClassController::class, 'addClass'])->middleware('auth');
+
+// Example of Laravel route
+
+    // routes/api.php
+//    Route::post('/class/add-users', [ClassController::class, 'addUsers']);
+
+
+
+
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -56,6 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Storage routes
     Route::post('/api/image', [StorageController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::get('/api/image/get', [StorageController::class, 'getPhoto'])->name('profile.photo.get');
+Route::get('/users', [UserController::class, 'index']);
 
     // Admin routes
     Route::get('/admin/user/edit/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
@@ -84,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('class/{classId}')->group(function () {
         Route::patch('works/{workId}/comments/{commentId}', [ClassController::class, 'updateComment'])->name('comments.update');
         Route::delete('works/{workId}/comments/{commentId}', [ClassController::class, 'deleteComment'])->name('comments.delete');
+         Route::get('/users', [UserController::class, 'index']);
     });
 });
 

@@ -13,6 +13,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
     const [error, setError] = useState(null);
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editedComment, setEditedComment] = useState('');
+    const [grades, setGrades] = useState({}); // Store grades for each student's submission
 
 
     const fetchAvailableWorks = async () => {
@@ -213,6 +214,45 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
         }
     };
 
+    const handleGradeChange = (workId, userId, value) => {
+        setGrades((prev) => ({
+            ...prev,
+            [workId]: {
+                ...(prev[workId] || {}),
+                [userId]: value,
+            },
+        }));
+    };
+
+    const handleGradeSubmit = async (workId, userId) => {
+        const grade = grades[workId]?.[userId];
+        if (grade === undefined) {
+            alert("Please enter a grade.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/class/${classId}/works/${workId}/grade`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({ userId, grade }),
+            });
+
+            if (response.ok) {
+                fetchAvailableWorks(); // Refresh the works to show updated grades
+            } else {
+                console.error('Error submitting grade:', response.statusText);
+                setError('Failed to submit grade.'); // Set error message
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setError('An error occurred while submitting the grade.'); // Set error message
+        }
+    };
+
     useEffect(() => {
         fetchAvailableWorks();
     }, [classId]);
@@ -286,7 +326,7 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                 </aside>
 
                 <main className="flex-1 p-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-6">Class ID: {classId}</h1>
+                    {/* <h1 className="text-3xl font-bold text-gray-800 mb-6">Class ID: {classId}</h1> */}
 
                     <div>
                         <h2 className="text-xl font-semibold mb-2">Available Works</h2>
@@ -299,6 +339,28 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                                         <h3 className="font-bold text-lg">{work.title}</h3>
                                         <p className="text-gray-700">{work.description}</p>
                                         <p className="text-sm text-gray-500">Status: {work.status}</p>
+
+
+                                        {Array.isArray(work.submissions) && work.submissions.length > 0 ? (
+                work.submissions.map((submission) => (
+                    <div key={submission.id} className="mt-4">
+                        <h4 className="font-semibold">{submission.studentName}'s Submission</h4>
+                        <p>Grade: 
+                            <input
+                                type="number"
+                                value={grades[work.id]?.[submission.userId] || ''}
+                                onChange={(e) => handleGradeChange(work.id, submission.userId, e.target.value)}
+                                className="border border-gray-300 rounded p-2 w-20"
+                            />
+                            <button onClick={() => handleGradeSubmit(work.id, submission.userId)} className="ml-2 bg-blue-600 text-white rounded p-1 hover:bg-blue-500 transition duration-300">
+                                Submit Grade
+                            </button>
+                        </p>
+                    </div>
+                ))
+            ) : (
+                <p className="text-gray-500 italic">No submissions available.</p>
+            )}
 
                                         {work.comments && work.comments.length > 0 && (
                                             <div className="mt-4">
@@ -328,12 +390,23 @@ const ClassPage = ({ classId, availableWorks, auth }) => {
                                                                 >
                                                                     Edit
                                                                 </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteComment(work.id, comment.id)}
-                                                                    className="text-red-600 hover:text-red-500"
-                                                                >
-                                                                    Delete
-                                                                </button>
+                                                                {/* Render delete button only if the user has the "teacher" role */}
+                                                                {auth.user.role === "teacher"  && ( // Assuming `auth.user.role` contains the user's role
+                                                                    <button
+                                                                        onClick={() => handleDeleteComment(work.id, comment.id)}
+                                                                        className="text-red-600 hover:text-red-500"
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                )}
+                                                                {auth.user.role === "admin"  && ( // Assuming `auth.user.role` contains the user's role
+                                                                    <button
+                                                                        onClick={() => handleDeleteComment(work.id, comment.id)}
+                                                                        className="text-red-600 hover:text-red-500"
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>
